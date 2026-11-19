@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Wonder Room · Animated "What if?" science</title>
+<meta name="description" content="The Wonder Room turns big &quot;what if?&quot; questions into short animated science stories, researched and sourced.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <a class="logo" href="/"><span class="dot"></span>The Wonder Room</a>
+    <nav>
+      <a href="#episodes">Episodes</a>
+      <a href="#corrections">Corrections</a>
+      <a id="yt-link" href="#" target="_blank" rel="noopener">YouTube ↗</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <span class="kicker">✦ ANIMATED SCIENCE</span>
+        <h1>Big questions.<br><em>Tiny</em> what&#8209;ifs.</h1>
+        <p class="lede">Every week, Doz asks a ridiculous "what if?" question, and we find the real science behind it. Researched, sourced, and animated by The Wonder Room.</p>
+        <a class="btn" href="#episodes">Watch the episodes ↓</a>
+        <a class="btn ghost" href="#corrections">Report a mistake</a>
+      </div>
+      <div>
+        <a class="feature" id="feature-link" href="#">
+          <img id="feature-img" src="img/coming-soon.jpg" alt="">
+          <span class="play">▶</span>
+        </a>
+        <p class="caption"><b>LATEST EPISODE</b><span id="feature-title"></span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="light" id="episodes">
+    <div class="wrap">
+      <span class="kicker">✦ EPISODES</span>
+      <h2>Every <em>what if</em> so far.</h2>
+      <p>Each episode page lists the studies and sources behind the video.</p>
+      <div class="grid" id="episode-grid"></div>
+    </div>
+  </section>
+
+  <section class="dark" id="corrections">
+    <div class="wrap desk">
+      <div>
+        <span class="kicker">✦ CORRECTIONS DESK</span>
+        <h2>Help us<br>get it <em>right.</em></h2>
+        <p class="lede">Spotted a factual mistake in one of our videos? Tell us where it is and what should change. We check every report against the sources, and we fix what's wrong in the description, the pinned comment and future episodes.</p>
+        <div class="note" style="color: var(--ink)">
+          <h4>What helps us check it</h4>
+          Quote or describe the mistake, and tell us what it should say instead. A link to a source helps most. For compliments or general chat, the YouTube comments are the best place.
+        </div>
+      </div>
+
+      <form name="corrections" method="POST" action="/thanks.html" data-netlify="true" netlify-honeypot="bot-field">
+        <input type="hidden" name="form-name" value="corrections">
+        <p class="hidden"><label>Don't fill this in: <input name="bot-field"></label></p>
+        <label>Episode
+          <select name="episode" id="episode-select" required></select>
+        </label>
+        <div class="row">
+          <label>YouTube link <small>optional</small>
+            <input type="url" name="video_url" placeholder="https://youtu.be/…">
+          </label>
+          <label>Timestamp
+            <input type="text" name="timestamp" placeholder="2:14" required>
+          </label>
+        </div>
+        <label>What did the video say or show?
+          <textarea name="said" required></textarea>
+        </label>
+        <label>What should it say or show instead?
+          <textarea name="should_say" required></textarea>
+        </label>
+        <label>Supporting sources <small>optional: links to studies or articles</small>
+          <textarea name="sources"></textarea>
+        </label>
+        <label>Your email <small>optional, only used if we need to follow up</small>
+          <input type="email" name="email">
+        </label>
+        <button class="btn" type="submit">Send report ↗</button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="year"></span> The Wonder Room · Narrated with an AI voice; written, researched and animated by us.</span>
+    <span>Education and entertainment, not medical advice.</span>
+  </div>
+</footer>
+
+<script src="episodes.js"></script>
+<script>
+  const CHANNEL = 'https://www.youtube.com/@WonderRoomScience'; // the YouTube channel
+  document.getElementById('yt-link').href = CHANNEL;
+  document.getElementById('year').textContent = new Date().getFullYear();
+  // episodes that are out, newest first
+  const eps = window.EPISODES.filter(window.isLive).sort((a, b) => b.released.localeCompare(a.released));
+  const fmtDate = (d) => new Date(d + 'T20:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
+  // hero: the latest episode
+  if (eps.length) {
+    const latest = eps[0];
+    document.getElementById('feature-img').src = latest.image;
+    document.getElementById('feature-img').alt = latest.title;
+    document.getElementById('feature-link').href = 'https://www.youtube.com/watch?v=' + latest.youtube;
+    document.getElementById('feature-title').textContent = latest.title;
+  } else {
+    document.getElementById('feature-img').src = 'img/coming-soon.jpg';
+    document.getElementById('feature-img').alt = 'The Wonder Room';
+    document.getElementById('feature-link').href = CHANNEL;
+    document.querySelector('.feature .play').textContent = '🔔';
+    document.querySelector('.hero .caption').innerHTML = '<b>COMING SOON</b> The first episode is almost here. Subscribe on YouTube so you don\'t miss it.';
+  }
+  // the grid
+  const grid = document.getElementById('episode-grid');
+  for (const e of eps) {
+    const a = document.createElement('a');
+    a.className = 'card'; a.href = 'episodes/' + e.slug + '.html';
+    a.innerHTML = '<img loading="lazy" alt=""><div class="body"><span class="num"></span><h3></h3><p></p></div>';
+    a.querySelector('img').src = e.image;
+    a.querySelector('.num').textContent = fmtDate(e.released).toUpperCase();
+    a.querySelector('h3').textContent = e.title;
+    a.querySelector('p').textContent = e.blurb;
+    grid.appendChild(a);
+  }
+  if (!eps.length) {
+    const soon = document.createElement('div');
+    soon.className = 'soon'; soon.textContent = 'Episodes appear here as they come out.';
+    grid.appendChild(soon);
+  }
+  // the form's episode list (pre-selects ?ep=slug)
+  const sel = document.getElementById('episode-select');
+  const want = new URLSearchParams(location.search).get('ep');
+  for (const e of eps) { const o = new Option(e.title, e.title); if (e.slug === want) o.selected = true; sel.add(o); }
+  sel.add(new Option('Other / not sure', 'other'));
+</script>
+</body>
+</html>
